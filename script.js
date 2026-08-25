@@ -56,7 +56,7 @@ function calculateDamage(power, attack, defense) {
     if (power <= 0) return 0;
 
     // 計算の実行
-    let damage = power * (attack / 180) * ((300 - defense) / 180) * 1.8;
+    let damage = power * (attack / 180) * ((300 - defense) / 180) * 1.2;
 
     // 小数点以下の切り捨て
     damage = Math.floor(damage);
