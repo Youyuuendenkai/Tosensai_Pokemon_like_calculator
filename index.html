@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Poke-like Battle Simulator</title>
-    <!-- CSSファイルの読み込み -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -46,17 +45,18 @@
             <div class="move-list">
                 <h3>技リスト</h3>
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-0" value="たいあたり">
+                    <!-- list属性と、選択時に威力を同期するoninputを設定 -->
+                    <input type="text" id="p1-move-name-0" list="move-database" oninput="syncMovePower('p1', 0)" value="たいあたり">
                     <input type="number" id="p1-move-power-0" value="60" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p1', 0)">使用</button>
                 </div>
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-1" value="かえんほうしゃ">
+                    <input type="text" id="p1-move-name-1" list="move-database" oninput="syncMovePower('p1', 1)" value="かえんほうしゃ">
                     <input type="number" id="p1-move-power-1" value="90" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p1', 1)">使用</button>
                 </div>
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-2" value="ウルトラバースト">
+                    <input type="text" id="p1-move-name-2" list="move-database" oninput="syncMovePower('p1', 2)" value="ウルトラバースト">
                     <input type="number" id="p1-move-power-2" value="120" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p1', 2)">使用</button>
                 </div>
@@ -92,17 +92,17 @@
             <div class="move-list">
                 <h3>技リスト</h3>
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-0" value="たいあたり">
+                    <input type="text" id="p2-move-name-0" list="move-database" oninput="syncMovePower('p2', 0)" value="たいあたり">
                     <input type="number" id="p2-move-power-0" value="60" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p2', 0)">使用</button>
                 </div>
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-1" value="ハイドロポンプ">
+                    <input type="text" id="p2-move-name-1" list="move-database" oninput="syncMovePower('p2', 1)" value="ハイドロポンプ">
                     <input type="number" id="p2-move-power-1" value="90" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p2', 1)">使用</button>
                 </div>
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-2" value="ギガインパクト">
+                    <input type="text" id="p2-move-name-2" list="move-database" oninput="syncMovePower('p2', 2)" value="ギガインパクト">
                     <input type="number" id="p2-move-power-2" value="120" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p2', 2)">使用</button>
                 </div>
@@ -117,7 +117,9 @@
     </div>
 </div>
 
-<!-- JavaScriptファイルの読み込み -->
+<!-- 技のデータベースの選択候補が入るdatalistタグ（中身はJSで自動生成します） -->
+<datalist id="move-database"></datalist>
+
 <script src="script.js"></script>
 </body>
 </html>
