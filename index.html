@@ -11,7 +11,6 @@
 <div class="container">
     <h1>Poke-like Battle Simulator</h1>
     
-    <!-- コントロールパネル（押しやすいよう、ボタンを大きく横並びに） -->
     <div class="control-panel">
         <button class="btn btn-reset" onclick="resetBattle()">バトルをリセット<br><small>（HP全回復）</small></button>
         <button class="btn btn-undo" id="btn-undo" onclick="undo()" disabled>１つ前の状態に戻る<br><small>（やり直し）</small></button>
@@ -23,17 +22,32 @@
             <h2>プレイヤー 1</h2>
             
             <div class="status-group">
-                <div class="status-input">
-                    <label for="p1-max-hp">最大HP (～180):</label>
-                    <input type="number" id="p1-max-hp" value="150" min="1" max="180" onchange="resetBattle()">
+                <!-- HP設定ステッパー -->
+                <div class="status-input-row">
+                    <label>最大HP (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-max-hp" value="150" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
-                <div class="status-input">
-                    <label for="p1-attack">こうげき (～180):</label>
-                    <input type="number" id="p1-attack" value="100" min="1" max="180">
+                <!-- 攻撃設定ステッパー -->
+                <div class="status-input-row">
+                    <label>こうげき (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-attack" value="100" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
-                <div class="status-input">
-                    <label for="p1-defense">ぼうぎょ (～180):</label>
-                    <input type="number" id="p1-defense" value="100" min="1" max="180">
+                <!-- 防御設定ステッパー -->
+                <div class="status-input-row">
+                    <label>ぼうぎょ (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-defense" value="100" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
             </div>
 
@@ -46,19 +60,35 @@
 
             <div class="move-list">
                 <h3>技リスト（選択して使用）</h3>
+                
+                <!-- 技スロット 1 -->
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-0" list="move-database" oninput="syncMovePower('p1', 0)" value="たいあたり">
-                    <input type="number" id="p1-move-power-0" value="60" min="0" max="120" title="威力">
+                    <select id="p1-move-name-0" onchange="onSelectMove('p1', 0)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-0', -10, 0, 120)">－</button>
+                        <input type="number" id="p1-move-power-0" value="60" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-0', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p1', 0)">使用</button>
                 </div>
+                <!-- 技スロット 2 -->
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-1" list="move-database" oninput="syncMovePower('p1', 1)" value="かえんほうしゃ">
-                    <input type="number" id="p1-move-power-1" value="90" min="0" max="120" title="威力">
+                    <select id="p1-move-name-1" onchange="onSelectMove('p1', 1)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-1', -10, 0, 120)">－</button>
+                        <input type="number" id="p1-move-power-1" value="90" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-1', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p1', 1)">使用</button>
                 </div>
+                <!-- 技スロット 3 -->
                 <div class="move-item">
-                    <input type="text" id="p1-move-name-2" list="move-database" oninput="syncMovePower('p1', 2)" value="ウルトラバースト">
-                    <input type="number" id="p1-move-power-2" value="120" min="0" max="120" title="威力">
+                    <select id="p1-move-name-2" onchange="onSelectMove('p1', 2)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-2', -10, 0, 120)">－</button>
+                        <input type="number" id="p1-move-power-2" value="120" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-move-power-2', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p1', 2)">使用</button>
                 </div>
             </div>
@@ -69,17 +99,32 @@
             <h2>プレイヤー 2</h2>
             
             <div class="status-group">
-                <div class="status-input">
-                    <label for="p2-max-hp">最大HP (～180):</label>
-                    <input type="number" id="p2-max-hp" value="150" min="1" max="180" onchange="resetBattle()">
+                <!-- HP設定ステッパー -->
+                <div class="status-input-row">
+                    <label>最大HP (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-max-hp" value="150" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
-                <div class="status-input">
-                    <label for="p2-attack">こうげき (～180):</label>
-                    <input type="number" id="p2-attack" value="100" min="1" max="180">
+                <!-- 攻撃設定ステッパー -->
+                <div class="status-input-row">
+                    <label>こうげき (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-attack" value="100" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
-                <div class="status-input">
-                    <label for="p2-defense">ぼうぎょ (～180):</label>
-                    <input type="number" id="p2-defense" value="100" min="1" max="180">
+                <!-- 防御設定ステッパー -->
+                <div class="status-input-row">
+                    <label>ぼうぎょ (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-defense" value="100" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
             </div>
 
@@ -92,19 +137,35 @@
 
             <div class="move-list">
                 <h3>技リスト（選択して使用）</h3>
+                
+                <!-- 技スロット 1 -->
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-0" list="move-database" oninput="syncMovePower('p2', 0)" value="たいあたり">
-                    <input type="number" id="p2-move-power-0" value="60" min="0" max="120" title="威力">
+                    <select id="p2-move-name-0" onchange="onSelectMove('p2', 0)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-0', -10, 0, 120)">－</button>
+                        <input type="number" id="p2-move-power-0" value="60" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-0', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p2', 0)">使用</button>
                 </div>
+                <!-- 技スロット 2 -->
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-1" list="move-database" oninput="syncMovePower('p2', 1)" value="ハイドロポンプ">
-                    <input type="number" id="p2-move-power-1" value="90" min="0" max="120" title="威力">
+                    <select id="p2-move-name-1" onchange="onSelectMove('p2', 1)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-1', -10, 0, 120)">－</button>
+                        <input type="number" id="p2-move-power-1" value="90" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-1', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p2', 1)">使用</button>
                 </div>
+                <!-- 技スロット 3 -->
                 <div class="move-item">
-                    <input type="text" id="p2-move-name-2" list="move-database" oninput="syncMovePower('p2', 2)" value="ギガインパクト">
-                    <input type="number" id="p2-move-power-2" value="120" min="0" max="120" title="威力">
+                    <select id="p2-move-name-2" onchange="onSelectMove('p2', 2)"></select>
+                    <div class="stepper mini">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-2', -10, 0, 120)">－</button>
+                        <input type="number" id="p2-move-power-2" value="120" readonly>
+                        <button type="button" class="btn-step" onclick="stepValue('p2-move-power-2', 10, 0, 120)">＋</button>
+                    </div>
                     <button class="btn-use-move" onclick="useMove('p2', 2)">使用</button>
                 </div>
             </div>
@@ -117,8 +178,6 @@
         <div class="log-entry">バトル開始！ステータスを入力して技を選択してください。</div>
     </div>
 </div>
-
-<datalist id="move-database"></datalist>
 
 <script src="script.js"></script>
 </body>
