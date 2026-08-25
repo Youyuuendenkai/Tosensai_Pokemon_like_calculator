@@ -23,13 +23,19 @@ let gameState = {
 // 履歴スタック（Undo用）
 let historyStack = [];
 
-// DOMのロードが完全に終わってから初期化を走らせる（エラー防止）
-document.addEventListener('DOMContentLoaded', () => {
+// ＝★【起動処理の強化】ブラウザの種類やテスト環境に依存せず、確実にJSを実行させる
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeGame);
+} else {
+    initializeGame();
+}
+
+function initializeGame() {
     initMoveDatabase();
     resetBattle();
-});
+}
 
-// HTMLのselectタグ群にデータベースの技を全注入する
+// selectタグ群にデータベースの技を注入
 function initMoveDatabase() {
     const players = ['p1', 'p2'];
     const slots = [0, 1, 2];
@@ -52,13 +58,13 @@ function initMoveDatabase() {
             const defaultIndex = (player === 'p1') ? slot : slot + 3;
             selectEl.selectedIndex = defaultIndex % MOVE_DATABASE.length;
             
-            // 初期状態の威力と同期させる
+            // 威力の数値を初期同期
             onSelectMove(player, slot);
         });
     });
 }
 
-// ＝★数値の10刻みの増減（readonlyのtext入力に対応）
+// 数値の10刻みの増減（直接の手入力にも完全対応）
 function stepValue(id, delta, min, max) {
     const input = document.getElementById(id);
     if (!input) return;
@@ -66,13 +72,12 @@ function stepValue(id, delta, min, max) {
     let currentValue = parseInt(input.value) || 0;
     let newValue = currentValue + delta;
 
-    // 制限範囲内に丸める
     if (newValue < min) newValue = min;
     if (newValue > max) newValue = max;
 
     input.value = newValue;
 
-    // もし最大HPをバトル中に変更した際、現在のHPが最大HPを超えてしまっていたら安全に丸める
+    // HP自動調整
     if (id.endsWith('max-hp')) {
         const player = id.startsWith('p1') ? 'p1' : 'p2';
         if (gameState[player].currentHp > newValue) {
@@ -82,17 +87,20 @@ function stepValue(id, delta, min, max) {
     }
 }
 
-// 技選択（select）が変わったときに威力を自動補完する
+// 技選択時に威力テキストと計算用hiddenの数値を更新
 function onSelectMove(player, moveIndex) {
     const selectEl = document.getElementById(`${player}-move-name-${moveIndex}`);
     const powerInput = document.getElementById(`${player}-move-power-${moveIndex}`);
-    if (!selectEl || !powerInput) return;
+    const powerDisplay = document.getElementById(`${player}-move-power-display-${moveIndex}`);
+    
+    if (!selectEl) return;
 
     const selectedName = selectEl.value;
     const foundMove = MOVE_DATABASE.find(move => move.name === selectedName);
 
     if (foundMove) {
-        powerInput.value = foundMove.power;
+        if (powerInput) powerInput.value = foundMove.power;
+        if (powerDisplay) powerDisplay.textContent = foundMove.power;
     }
 }
 
@@ -128,7 +136,7 @@ function undo() {
     document.getElementById('log-container').innerHTML = prevState.logHTML;
 
     const logContainer = document.getElementById('log-container');
-    logContainer.scrollTop = logContainer.scrollHeight;
+    if (logContainer) logContainer.scrollTop = logContainer.scrollHeight;
 
     updateUndoButtonState();
 }
@@ -142,7 +150,6 @@ function updateUndoButtonState() {
 
 // バトルのリセット
 function resetBattle() {
-    // 初回起動時の未定義状態を避けるための安全ガード
     if (gameState.p1.currentHp !== undefined && historyStack.length > 0) {
         saveToHistory();
     }
