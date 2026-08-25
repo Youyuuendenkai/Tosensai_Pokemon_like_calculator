@@ -28,23 +28,66 @@ window.onload = function() {
     resetBattle();
 };
 
-// データベースの技をdatalistへセット
+// HTMLのselectタグ群にデータベースの技を全注入する
 function initMoveDatabase() {
-    const datalist = document.getElementById('move-database');
-    datalist.innerHTML = '';
-    MOVE_DATABASE.forEach(move => {
-        const option = document.createElement('option');
-        option.value = move.name;
-        option.textContent = `(威力:${move.power})`;
-        datalist.appendChild(option);
+    const players = ['p1', 'p2'];
+    const slots = [0, 1, 2];
+    
+    players.forEach(player => {
+        slots.forEach(slot => {
+            const selectEl = document.getElementById(`${player}-move-name-${slot}`);
+            if (!selectEl) return;
+            
+            selectEl.innerHTML = ''; // クリア
+            
+            MOVE_DATABASE.forEach(move => {
+                const option = document.createElement('option');
+                option.value = move.name;
+                option.textContent = `${move.name} (威力:${move.power})`;
+                selectEl.appendChild(option);
+            });
+            
+            // 各プレイヤーの各スロットに異なる初期技をセット（ばらけさせるため）
+            const defaultIndex = (player === 'p1') ? slot : slot + 3;
+            selectEl.selectedIndex = defaultIndex % MOVE_DATABASE.length;
+            
+            // 各技スロットの威力欄に数値を自動同期
+            onSelectMove(player, slot);
+        });
     });
 }
 
-// 技選択時に威力を自動設定
-function syncMovePower(player, moveIndex) {
-    const nameInput = document.getElementById(`${player}-move-name-${moveIndex}`);
+// ＝★新規追加：数値の10刻みの増減（ステッパー用）
+function stepValue(id, delta, min, max) {
+    const input = document.getElementById(id);
+    if (!input) return;
+
+    let currentValue = parseInt(input.value) || 0;
+    let newValue = currentValue + delta;
+
+    // 制限範囲内に丸める
+    if (newValue < min) newValue = min;
+    if (newValue > max) newValue = max;
+
+    input.value = newValue;
+
+    // もし最大HPをバトル中に変更した際、現在のHPが最大HPを超えてしまっていたら安全に丸める
+    if (id.endsWith('max-hp')) {
+        const player = id.startsWith('p1') ? 'p1' : 'p2';
+        if (gameState[player].currentHp > newValue) {
+            gameState[player].currentHp = newValue;
+            updateHPDisplay(player, newValue);
+        }
+    }
+}
+
+// 技選択（select）が変わったときに威力を自動補完する
+function onSelectMove(player, moveIndex) {
+    const selectEl = document.getElementById(`${player}-move-name-${moveIndex}`);
     const powerInput = document.getElementById(`${player}-move-power-${moveIndex}`);
-    const selectedName = nameInput.value;
+    if (!selectEl || !powerInput) return;
+
+    const selectedName = selectEl.value;
     const foundMove = MOVE_DATABASE.find(move => move.name === selectedName);
 
     if (foundMove) {
@@ -52,31 +95,26 @@ function syncMovePower(player, moveIndex) {
     }
 }
 
-// ＝★新規追加：現在の状態を履歴に保存する
+// 履歴に保存
 function saveToHistory() {
-    // 現在のHPとログ画面の状態を記録してスタックに追加
     historyStack.push({
         p1Hp: gameState.p1.currentHp,
         p2Hp: gameState.p2.currentHp,
         logHTML: document.getElementById('log-container').innerHTML
     });
 
-    // 履歴がたまりすぎないよう直近の30件に制限
     if (historyStack.length > 30) {
         historyStack.shift();
     }
-
     updateUndoButtonState();
 }
 
-// ＝★新規追加：1つ前の状態に戻す (Undo)
+// 1つ戻る (Undo)
 function undo() {
     if (historyStack.length === 0) return;
 
-    // 最新の履歴を取り出す
     const prevState = historyStack.pop();
 
-    // HP状態の復元
     gameState.p1.currentHp = prevState.p1Hp;
     gameState.p2.currentHp = prevState.p2Hp;
 
@@ -86,17 +124,14 @@ function undo() {
     updateHPDisplay('p1', p1MaxHp);
     updateHPDisplay('p2', p2MaxHp);
 
-    // ログ表示の復元
     document.getElementById('log-container').innerHTML = prevState.logHTML;
 
-    // ログエリアを最下部までスクロール
     const logContainer = document.getElementById('log-container');
     logContainer.scrollTop = logContainer.scrollHeight;
 
     updateUndoButtonState();
 }
 
-// Undoボタンの有効/無効の切り替え
 function updateUndoButtonState() {
     const undoBtn = document.getElementById('btn-undo');
     if (undoBtn) {
@@ -106,7 +141,6 @@ function updateUndoButtonState() {
 
 // バトルのリセット
 function resetBattle() {
-    // リセットする前の状態も保存しておくことで、間違えてリセットを押しても戻せます
     if (gameState.p1.currentHp !== undefined) {
         saveToHistory();
     }
@@ -123,12 +157,11 @@ function resetBattle() {
     const logContainer = document.getElementById('log-container');
     logContainer.innerHTML = '<div class="log-entry">バトルがリセット（開始準備完了）されました。</div>';
     
-    // リセット直後はさらに前の履歴を一旦クリアし、初期化する
     historyStack = [];
     updateUndoButtonState();
 }
 
-// HP表示の更新
+// HP表示更新
 function updateHPDisplay(player, maxHp) {
     const currentHp = gameState[player].currentHp;
     const hpPercent = maxHp > 0 ? (currentHp / maxHp) * 100 : 0;
@@ -156,7 +189,7 @@ function calculateDamage(power, attack, defense) {
     return Math.max(1, damage);
 }
 
-// 技の使用
+// 技使用
 function useMove(attacker, moveIndex) {
     const defender = attacker === 'p1' ? 'p2' : 'p1';
 
@@ -175,13 +208,13 @@ function useMove(attacker, moveIndex) {
         return;
     }
 
-    // ＝★ダメージ計算して減算する前に、現在の状態を保存する
     saveToHistory();
 
     const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
     const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
     
-    const moveName = document.getElementById(`${attacker}-move-name-${moveIndex}`).value || `わざ${moveIndex + 1}`;
+    const selectEl = document.getElementById(`${attacker}-move-name-${moveIndex}`);
+    const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
     const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
 
     const damage = calculateDamage(movePower, attack, defense);
@@ -200,7 +233,7 @@ function useMove(attacker, moveIndex) {
     }
 }
 
-// ログ出力
+// ログ
 function addLog(message) {
     const logContainer = document.getElementById('log-container');
     const newEntry = document.createElement('div');
