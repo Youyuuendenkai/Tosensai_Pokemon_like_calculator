@@ -194,11 +194,21 @@ function updateHPDisplay(player, maxHp) {
     }
 }
 
-// ダメージ計算（3～5ターン想定）
+// ダメージ計算（HP×防御の相乗効果を生む割り算式）
 function calculateDamage(power, attack, defense) {
     if (power <= 0) return 0;
-    let damage = power * (attack / 180) * ((300 - defense) / 180) * 1.2;
+
+    // もし防御が0以下ならエラー防止のため1にする
+    const safeDefense = defense > 0 ? defense : 1;
+
+    // 【新しい計算式】
+    // 威力 * (攻撃 / 防御) * 補正値(0.85)
+    let damage = power * (attack / safeDefense) * 0.85;
+
+    // 小数点以下の切り捨て
     damage = Math.floor(damage);
+
+    // 最低1ダメージ保証
     return Math.max(1, damage);
 }
 
