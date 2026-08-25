@@ -72,7 +72,7 @@ h1 {
 }
 .player-card {
     flex: 1;
-    min-width: 340px; /* ステッパー幅を考慮し少し広げました */
+    min-width: 340px;
     background: white;
     padding: 24px;
     border-radius: 12px;
@@ -100,7 +100,7 @@ h1 {
     font-size: 16px;
 }
 
-/* 自作の＋/－ステッパーUI */
+/* ステッパーUI */
 .stepper {
     display: flex;
     align-items: center;
@@ -110,7 +110,7 @@ h1 {
     background-color: #f8f9fa;
 }
 .btn-step {
-    width: 44px; /* iPad標準のタッチ推奨サイズ(最小44px) */
+    width: 44px;
     height: 44px;
     border: none;
     background-color: #e9ecef;
@@ -123,7 +123,7 @@ h1 {
     background-color: #ced4da;
 }
 .stepper input {
-    width: 60px;
+    width: 70px;
     height: 44px;
     border: none;
     background: white;
@@ -131,25 +131,10 @@ h1 {
     font-weight: bold;
     text-align: center;
     color: #333;
-    pointer-events: none; /* 入力欄自体をタップしてもキーボードを出さない */
+    /* 直接入力可能にしたためpointer-eventsを解除しました */
 }
 
-/* 技欄用の少し小さめのステッパー */
-.stepper.mini {
-    border-radius: 6px;
-}
-.stepper.mini .btn-step {
-    width: 36px;
-    height: 36px;
-    font-size: 16px;
-}
-.stepper.mini input {
-    width: 44px;
-    height: 36px;
-    font-size: 16px;
-}
-
-/* ブラウザ標準の上下スピナー矢印を完全に隠す */
+/* ブラウザ標準のスピナー（矢印）を完全に隠す */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -184,7 +169,7 @@ input[type=number] {
     margin-top: 8px;
 }
 
-/* 技リスト（iPadセレクトボックス対応） */
+/* 技リスト */
 .move-list {
     margin-top: 25px;
 }
@@ -196,28 +181,38 @@ input[type=number] {
 }
 .move-item {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 14px;
     align-items: center;
 }
 
-/* 技セレクトボックス */
+/* 技セレクトボックス（横長になって潰れないよう flex: 3 に大幅拡大） */
 .move-item select {
-    flex: 2;
-    height: 38px;
+    flex: 3;
+    height: 44px;
     padding: 0 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
-    font-size: 16px; /* ズーム防止 */
+    font-size: 16px;
     background-color: white;
     cursor: pointer;
-    min-width: 120px;
+    min-width: 140px;
+}
+
+/* 威力テキスト表示（スッキリしたサイズ） */
+.move-power-label {
+    flex: 1;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    color: #555;
+    white-space: nowrap; /* 改行を防ぐ */
 }
 
 /* 技使用ボタン */
 .btn-use-move {
-    flex: 1;
-    height: 38px;
+    flex: 1.2;
+    height: 44px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -227,7 +222,7 @@ input[type=number] {
     font-size: 16px;
     box-shadow: 0 3px 5px rgba(0,0,0,0.1);
     transition: transform 0.1s, background-color 0.2s;
-    min-width: 70px;
+    min-width: 75px;
 }
 .btn-use-move:active {
     transform: scale(0.95);
