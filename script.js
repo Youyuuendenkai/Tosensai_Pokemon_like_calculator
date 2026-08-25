@@ -23,10 +23,11 @@ let gameState = {
 // 履歴スタック（Undo用）
 let historyStack = [];
 
-window.onload = function() {
+// DOMのロードが完全に終わってから初期化を走らせる（エラー防止）
+document.addEventListener('DOMContentLoaded', () => {
     initMoveDatabase();
     resetBattle();
-};
+});
 
 // HTMLのselectタグ群にデータベースの技を全注入する
 function initMoveDatabase() {
@@ -47,17 +48,17 @@ function initMoveDatabase() {
                 selectEl.appendChild(option);
             });
             
-            // 各プレイヤーの各スロットに異なる初期技をセット（ばらけさせるため）
+            // 各スロットに初期技を設定
             const defaultIndex = (player === 'p1') ? slot : slot + 3;
             selectEl.selectedIndex = defaultIndex % MOVE_DATABASE.length;
             
-            // 各技スロットの威力欄に数値を自動同期
+            // 初期状態の威力と同期させる
             onSelectMove(player, slot);
         });
     });
 }
 
-// ＝★新規追加：数値の10刻みの増減（ステッパー用）
+// ＝★数値の10刻みの増減（readonlyのtext入力に対応）
 function stepValue(id, delta, min, max) {
     const input = document.getElementById(id);
     if (!input) return;
@@ -141,7 +142,8 @@ function updateUndoButtonState() {
 
 // バトルのリセット
 function resetBattle() {
-    if (gameState.p1.currentHp !== undefined) {
+    // 初回起動時の未定義状態を避けるための安全ガード
+    if (gameState.p1.currentHp !== undefined && historyStack.length > 0) {
         saveToHistory();
     }
 
@@ -155,7 +157,9 @@ function resetBattle() {
     updateHPDisplay('p2', p2MaxHp);
 
     const logContainer = document.getElementById('log-container');
-    logContainer.innerHTML = '<div class="log-entry">バトルがリセット（開始準備完了）されました。</div>';
+    if (logContainer) {
+        logContainer.innerHTML = '<div class="log-entry">バトルがリセット（開始準備完了）されました。</div>';
+    }
     
     historyStack = [];
     updateUndoButtonState();
@@ -169,15 +173,17 @@ function updateHPDisplay(player, maxHp) {
     const bar = document.getElementById(`${player}-hp-bar`);
     const text = document.getElementById(`${player}-hp-text`);
 
-    bar.style.width = `${Math.max(0, hpPercent)}%`;
-    text.textContent = `${Math.max(0, currentHp)} / ${maxHp}`;
+    if (bar) bar.style.width = `${Math.max(0, hpPercent)}%`;
+    if (text) text.textContent = `${Math.max(0, currentHp)} / ${maxHp}`;
 
-    if (hpPercent > 50) {
-        bar.style.backgroundColor = '#28a745';
-    } else if (hpPercent > 20) {
-        bar.style.backgroundColor = '#ffc107';
-    } else {
-        bar.style.backgroundColor = '#dc3545';
+    if (bar) {
+        if (hpPercent > 50) {
+            bar.style.backgroundColor = '#28a745';
+        } else if (hpPercent > 20) {
+            bar.style.backgroundColor = '#ffc107';
+        } else {
+            bar.style.backgroundColor = '#dc3545';
+        }
     }
 }
 
@@ -236,6 +242,7 @@ function useMove(attacker, moveIndex) {
 // ログ
 function addLog(message) {
     const logContainer = document.getElementById('log-container');
+    if (!logContainer) return;
     const newEntry = document.createElement('div');
     newEntry.className = 'log-entry';
     newEntry.textContent = message;
