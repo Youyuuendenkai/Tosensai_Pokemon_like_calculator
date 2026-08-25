@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Poke-like Battle Simulator</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -11,8 +11,10 @@
 <div class="container">
     <h1>Poke-like Battle Simulator</h1>
     
+    <!-- コントロールパネル（押しやすいよう、ボタンを大きく横並びに） -->
     <div class="control-panel">
-        <button class="btn btn-reset" onclick="resetBattle()">バトルをリセット（HP全回復）</button>
+        <button class="btn btn-reset" onclick="resetBattle()">バトルをリセット<br><small>（HP全回復）</small></button>
+        <button class="btn btn-undo" id="btn-undo" onclick="undo()" disabled>１つ前の状態に戻る<br><small>（やり直し）</small></button>
     </div>
 
     <div class="battlefield">
@@ -43,9 +45,8 @@
             </div>
 
             <div class="move-list">
-                <h3>技リスト</h3>
+                <h3>技リスト（選択して使用）</h3>
                 <div class="move-item">
-                    <!-- list属性と、選択時に威力を同期するoninputを設定 -->
                     <input type="text" id="p1-move-name-0" list="move-database" oninput="syncMovePower('p1', 0)" value="たいあたり">
                     <input type="number" id="p1-move-power-0" value="60" min="0" max="120" title="威力">
                     <button class="btn-use-move" onclick="useMove('p1', 0)">使用</button>
@@ -90,7 +91,7 @@
             </div>
 
             <div class="move-list">
-                <h3>技リスト</h3>
+                <h3>技リスト（選択して使用）</h3>
                 <div class="move-item">
                     <input type="text" id="p2-move-name-0" list="move-database" oninput="syncMovePower('p2', 0)" value="たいあたり">
                     <input type="number" id="p2-move-power-0" value="60" min="0" max="120" title="威力">
@@ -117,7 +118,6 @@
     </div>
 </div>
 
-<!-- 技のデータベースの選択候補が入るdatalistタグ（中身はJSで自動生成します） -->
 <datalist id="move-database"></datalist>
 
 <script src="script.js"></script>
