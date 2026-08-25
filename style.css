@@ -1,0 +1,152 @@
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.control-panel {
+    text-align: center;
+    margin-bottom: 20px;
+}
+.btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.btn-reset {
+    background-color: #dc3545;
+    color: white;
+}
+.btn-reset:hover {
+    background-color: #c82333;
+}
+.battlefield {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.player-card {
+    flex: 1;
+    min-width: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.player-card h2 {
+    margin-top: 0;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+.status-group {
+    margin-bottom: 15px;
+}
+.status-input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.status-input label {
+    width: 130px;
+    font-weight: bold;
+}
+.status-input input {
+    width: 80px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+/* HPバー */
+.hp-section {
+    margin: 15px 0;
+}
+.hp-bar-container {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 20px;
+    width: 100%;
+    overflow: hidden;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+}
+.hp-bar {
+    background-color: #28a745;
+    height: 100%;
+    width: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+.hp-text {
+    text-align: right;
+    font-weight: bold;
+    margin-top: 5px;
+}
+/* 技リスト */
+.move-list {
+    margin-top: 20px;
+}
+.move-list h3 {
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 5px;
+}
+.move-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+.move-item input[type="text"] {
+    flex: 2;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    min-width: 80px;
+}
+.move-item input[type="number"] {
+    width: 60px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.btn-use-move {
+    flex: 1;
+    padding: 6px 12px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    min-width: 60px;
+}
+.btn-use-move:hover {
+    background-color: #0069d9;
+}
+/* ログエリア */
+.log-container {
+    background: #222;
+    color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    height: 180px;
+    overflow-y: auto;
+    font-family: monospace;
+    line-height: 1.5;
+}
+.log-entry {
+    margin-bottom: 5px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 3px;
+}
