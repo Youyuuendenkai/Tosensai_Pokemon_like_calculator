@@ -248,3 +248,10 @@ input[type=number] {
     border-bottom: 1px solid #333;
     padding-bottom: 4px;
 }
+
+/* ＝★iPad用の連打対策：ダブルタップズームとテキストの青ハイライトを防止 */
+button, select, .btn, .btn-step, .btn-use-move {
+    touch-action: manipulation;  /* ダブルタップでのズーム機能を無効化します */
+    -webkit-user-select: none;   /* 連打したときに文字が青く選択されてしまうのを防ぎます */
+    user-select: none;
+}
