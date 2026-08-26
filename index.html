@@ -160,8 +160,23 @@
     <div id="log-container" class="log-container">
         <div class="log-entry">バトル開始！ステータスを入力して技を選択してください。</div>
     </div>
-</div>
 
-<script src="script.js"></script>
+</div>
+    
+    <!-- ＝★新規追加：大迫力のHPダメージ演出用ポップアップ -->
+    <div id="battle-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-player-name">プレイヤー2</h2>
+            <div class="modal-hp-section">
+                <div class="modal-hp-bar-container">
+                    <div id="modal-hp-bar" class="modal-hp-bar"></div>
+                </div>
+                <div id="modal-hp-text" class="modal-hp-text">150 / 150</div>
+            </div>
+            <p id="modal-hint">ダメージをうけている...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
