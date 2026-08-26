@@ -279,3 +279,93 @@ function addLog(message) {
     logContainer.appendChild(newEntry);
     logContainer.scrollTop = logContainer.scrollHeight;
 }
+
+/* ==========================================
+   ＝★新規追加：ダメージ演出ポップアップ（モーダル）
+   ========================================== */
+.modal-overlay {
+    display: none; /* 初期状態は非表示 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.88); /* バトル背景を深く暗転 */
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* activeクラスがつくと画面に出現 */
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-content {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 650px;
+    text-align: center;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    transform: scale(0.85);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1); /* ポップアップ出現時にフワッと拡大 */
+}
+
+.modal-content h2 {
+    font-size: 36px;
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #222;
+}
+
+.modal-hp-section {
+    margin: 40px 0;
+}
+
+.modal-hp-bar-container {
+    background-color: #e0e0e0;
+    border-radius: 25px;
+    height: 48px; /* HPバーをかなり大きく */
+    width: 100%;
+    overflow: hidden;
+    box-shadow: inset 0 3px 6px rgba(0,0,0,0.25);
+}
+
+.modal-hp-bar {
+    background-color: #28a745;
+    height: 100%;
+    width: 100%;
+    /* 1.5秒かけて滑らかに減るアニメーション（本家っぽさを再現） */
+    transition: width 1.5s cubic-bezier(0.1, 0.8, 0.25, 1), background-color 1.5s ease;
+}
+
+.modal-hp-text {
+    font-size: 34px;
+    font-weight: bold;
+    text-align: right;
+    margin-top: 15px;
+    font-family: monospace;
+    color: #333;
+}
+
+#modal-hint {
+    color: #dc3545;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 25px;
+    animation: blink 1s infinite alternate; /* 点滅アニメーション */
+}
+
+@keyframes blink {
+    0% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
