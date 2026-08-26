@@ -244,8 +244,10 @@ function useMove(attacker, moveIndex) {
         return;
     }
 
-    saveToHistory();
+    // 1. 計算前の「現在のHP（開始時のHP）」を保存
+    const startHp = gameState[defender].currentHp;
 
+    // 各種ステータスの取得
     const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
     const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
     
@@ -253,20 +255,33 @@ function useMove(attacker, moveIndex) {
     const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
     const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
 
+    // ダメージ計算
     const damage = calculateDamage(movePower, attack, defense);
 
-    gameState[defender].currentHp -= damage;
-    if (gameState[defender].currentHp < 0) {
-        gameState[defender].currentHp = 0;
-    }
+    // 2. 計算後の「終了時のHP」を計算（マイナスにならないようガード）
+    const endHp = Math.max(0, startHp - damage);
 
-    updateHPDisplay(defender, defenderMaxHp);
+    // 3. アニメーション前の状態（開始前のHP）で履歴に保存（やり直し対応のため）
+    saveToHistory();
 
-    addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
+    // 4. 【演出開始】
+    triggerDamageAnimation(defender, startHp, endHp, defenderMaxHp, () => {
+        // ＝★以下はアニメーション演出が完全に終了して、画面が戻った後に実行されます
+        
+        // ステート（現在HP）の確定反映
+        gameState[defender].currentHp = endHp;
 
-    if (gameState[defender].currentHp <= 0) {
-        addLog(`${defenderName}はたおれた！`);
-    }
+        // メイン画面のHPバーと文字を更新
+        updateHPDisplay(defender, defenderMaxHp);
+
+        // バトルログの書き出し
+        addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
+
+        // ひんし判定
+        if (gameState[defender].currentHp <= 0) {
+            addLog(`${defenderName}はたおれた！`);
+        }
+    });
 }
 
 // ログ
@@ -280,10 +295,6 @@ function addLog(message) {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
-// ==========================================
-// ※ MOVE_DATABASE や gameState などの変数定義、
-// および stepValue, undo などの既存関数はそのまま残してください
-// ==========================================
 
 // ＝★新規追加：ダメージ時に巨大HPバーとカウントダウンを再生する関数
 function triggerDamageAnimation(defender, startHp, endHp, maxHp, callback) {
@@ -359,63 +370,4 @@ function setModalHPBarColor(percent) {
     } else {
         bar.style.backgroundColor = '#dc3545'; // 赤
     }
-}
-
-// ＝★大幅修正：演出アニメーションに連動させた「技の使用」関数
-function useMove(attacker, moveIndex) {
-    const defender = attacker === 'p1' ? 'p2' : 'p1';
-
-    const attackerName = attacker === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
-    const defenderName = defender === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
-
-    const attackerMaxHp = parseInt(document.getElementById(`${attacker}-max-hp`).value) || 150;
-    const defenderMaxHp = parseInt(document.getElementById(`${defender}-max-hp`).value) || 150;
-
-    if (gameState[attacker].currentHp <= 0) {
-        addLog(`${attackerName}はひんし状態のため、技を使えません。`);
-        return;
-    }
-    if (gameState[defender].currentHp <= 0) {
-        addLog(`${defenderName}はすでに倒れています。`);
-        return;
-    }
-
-    // 1. 計算前の「現在のHP（開始時のHP）」を保存
-    const startHp = gameState[defender].currentHp;
-
-    // 各種ステータスの取得
-    const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
-    const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
-    
-    const selectEl = document.getElementById(`${attacker}-move-name-${moveIndex}`);
-    const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
-    const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
-
-    // ダメージ計算
-    const damage = calculateDamage(movePower, attack, defense);
-
-    // 2. 計算後の「終了時のHP」を計算（マイナスにならないようガード）
-    const endHp = Math.max(0, startHp - damage);
-
-    // 3. アニメーション前の状態（開始前のHP）で履歴に保存（やり直し対応のため）
-    saveToHistory();
-
-    // 4. 【演出開始】
-    triggerDamageAnimation(defender, startHp, endHp, defenderMaxHp, () => {
-        // ＝★以下はアニメーション演出が完全に終了して、画面が戻った後に実行されます
-        
-        // ステート（現在HP）の確定反映
-        gameState[defender].currentHp = endHp;
-
-        // メイン画面のHPバーと文字を更新
-        updateHPDisplay(defender, defenderMaxHp);
-
-        // バトルログの書き出し
-        addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
-
-        // ひんし判定
-        if (gameState[defender].currentHp <= 0) {
-            addLog(`${defenderName}はたおれた！`);
-        }
-    });
 }
