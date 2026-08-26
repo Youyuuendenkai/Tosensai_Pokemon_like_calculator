@@ -280,92 +280,142 @@ function addLog(message) {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
-/* ==========================================
-   ＝★新規追加：ダメージ演出ポップアップ（モーダル）
-   ========================================== */
-.modal-overlay {
-    display: none; /* 初期状態は非表示 */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.88); /* バトル背景を深く暗転 */
-    z-index: 1000;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+// ==========================================
+// ※ MOVE_DATABASE や gameState などの変数定義、
+// および stepValue, undo などの既存関数はそのまま残してください
+// ==========================================
+
+// ＝★新規追加：ダメージ時に巨大HPバーとカウントダウンを再生する関数
+function triggerDamageAnimation(defender, startHp, endHp, maxHp, callback) {
+    const overlay = document.getElementById('battle-modal');
+    const bar = document.getElementById('modal-hp-bar');
+    const text = document.getElementById('modal-hp-text');
+    const title = document.getElementById('modal-player-name');
+    
+    const defenderName = defender === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
+    title.textContent = defenderName;
+    
+    // アニメーション前の「初期状態」をモーダルにセット
+    const startPercent = (startHp / maxHp) * 100;
+    bar.style.transition = 'none'; // 一旦アニメーション（transition）を切る
+    bar.style.width = `${startPercent}%`;
+    setModalHPBarColor(startPercent);
+    text.textContent = `${startHp} / ${maxHp}`;
+    
+    // モーダルを表示
+    overlay.classList.add('active');
+    
+    // ブラウザが「初期状態」を描画し終えるまでわずかに（150ms）待ってから再生開始
+    setTimeout(() => {
+        // transition（アニメーション）を復活させ、減少後の割合にする
+        bar.style.transition = 'width 1.5s cubic-bezier(0.1, 0.8, 0.25, 1), background-color 1.5s ease';
+        const endPercent = (endHp / maxHp) * 100;
+        bar.style.width = `${endPercent}%`;
+        setModalHPBarColor(endPercent);
+        
+        // 【HP数値のじわじわ減少カウントダウン】
+        const damageAmount = startHp - endHp;
+        if (damageAmount <= 0) {
+            // ダメージがない場合は即座にcallbackを呼んで閉じる
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                if (callback) callback();
+            }, 800);
+            return;
+        }
+
+        let currentTempHp = startHp;
+        const animationDuration = 1500; // 1.5秒かけて減らす
+        // ダメージ量に応じて、カウントダウンの1引くごとの秒数を自動で調整
+        const stepTime = Math.max(10, Math.floor(animationDuration / damageAmount)); 
+        
+        const timer = setInterval(() => {
+            if (currentTempHp > endHp) {
+                currentTempHp--;
+                text.textContent = `${currentTempHp} / ${maxHp}`;
+            } else {
+                clearInterval(timer); // カウントダウン完了
+                
+                // 完全に減りきった状態で0.8秒だけハラハラさせてから、ポップアップを閉じる
+                setTimeout(() => {
+                    overlay.classList.remove('active');
+                    // 閉じるのとほぼ同時に、裏のメイン画面のHPやログを更新する（コールバック実行）
+                    if (callback) callback();
+                }, 800);
+            }
+        }, stepTime);
+        
+    }, 150);
 }
 
-/* activeクラスがつくと画面に出現 */
-.modal-overlay.active {
-    display: flex;
-    opacity: 1;
+// 演出モーダル用のHPバー色変化
+function setModalHPBarColor(percent) {
+    const bar = document.getElementById('modal-hp-bar');
+    if (!bar) return;
+    if (percent > 50) {
+        bar.style.backgroundColor = '#28a745'; // 緑
+    } else if (percent > 20) {
+        bar.style.backgroundColor = '#ffc107'; // 黄
+    } else {
+        bar.style.backgroundColor = '#dc3545'; // 赤
+    }
 }
 
-.modal-content {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 650px;
-    text-align: center;
-    box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-    transform: scale(0.85);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
+// ＝★大幅修正：演出アニメーションに連動させた「技の使用」関数
+function useMove(attacker, moveIndex) {
+    const defender = attacker === 'p1' ? 'p2' : 'p1';
 
-.modal-overlay.active .modal-content {
-    transform: scale(1); /* ポップアップ出現時にフワッと拡大 */
-}
+    const attackerName = attacker === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
+    const defenderName = defender === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
 
-.modal-content h2 {
-    font-size: 36px;
-    margin-top: 0;
-    margin-bottom: 25px;
-    color: #222;
-}
+    const attackerMaxHp = parseInt(document.getElementById(`${attacker}-max-hp`).value) || 150;
+    const defenderMaxHp = parseInt(document.getElementById(`${defender}-max-hp`).value) || 150;
 
-.modal-hp-section {
-    margin: 40px 0;
-}
+    if (gameState[attacker].currentHp <= 0) {
+        addLog(`${attackerName}はひんし状態のため、技を使えません。`);
+        return;
+    }
+    if (gameState[defender].currentHp <= 0) {
+        addLog(`${defenderName}はすでに倒れています。`);
+        return;
+    }
 
-.modal-hp-bar-container {
-    background-color: #e0e0e0;
-    border-radius: 25px;
-    height: 48px; /* HPバーをかなり大きく */
-    width: 100%;
-    overflow: hidden;
-    box-shadow: inset 0 3px 6px rgba(0,0,0,0.25);
-}
+    // 1. 計算前の「現在のHP（開始時のHP）」を保存
+    const startHp = gameState[defender].currentHp;
 
-.modal-hp-bar {
-    background-color: #28a745;
-    height: 100%;
-    width: 100%;
-    /* 1.5秒かけて滑らかに減るアニメーション（本家っぽさを再現） */
-    transition: width 1.5s cubic-bezier(0.1, 0.8, 0.25, 1), background-color 1.5s ease;
-}
+    // 各種ステータスの取得
+    const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
+    const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
+    
+    const selectEl = document.getElementById(`${attacker}-move-name-${moveIndex}`);
+    const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
+    const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
 
-.modal-hp-text {
-    font-size: 34px;
-    font-weight: bold;
-    text-align: right;
-    margin-top: 15px;
-    font-family: monospace;
-    color: #333;
-}
+    // ダメージ計算
+    const damage = calculateDamage(movePower, attack, defense);
 
-#modal-hint {
-    color: #dc3545;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 25px;
-    animation: blink 1s infinite alternate; /* 点滅アニメーション */
-}
+    // 2. 計算後の「終了時のHP」を計算（マイナスにならないようガード）
+    const endHp = Math.max(0, startHp - damage);
 
-@keyframes blink {
-    0% { opacity: 0.4; }
-    100% { opacity: 1; }
+    // 3. アニメーション前の状態（開始前のHP）で履歴に保存（やり直し対応のため）
+    saveToHistory();
+
+    // 4. 【演出開始】
+    triggerDamageAnimation(defender, startHp, endHp, defenderMaxHp, () => {
+        // ＝★以下はアニメーション演出が完全に終了して、画面が戻った後に実行されます
+        
+        // ステート（現在HP）の確定反映
+        gameState[defender].currentHp = endHp;
+
+        // メイン画面のHPバーと文字を更新
+        updateHPDisplay(defender, defenderMaxHp);
+
+        // バトルログの書き出し
+        addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
+
+        // ひんし判定
+        if (gameState[defender].currentHp <= 0) {
+            addLog(`${defenderName}はたおれた！`);
+        }
+    });
 }
