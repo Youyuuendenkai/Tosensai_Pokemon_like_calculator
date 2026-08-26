@@ -80,10 +80,9 @@ function stepValue(id, delta, min, max) {
     // HP自動調整
     if (id.endsWith('max-hp')) {
         const player = id.startsWith('p1') ? 'p1' : 'p2';
-#        if (gameState[player].currentHp > newValue) {
-#            gameState[player].currentHp = newValue;
-#            updateHPDisplay(player, newValue);
-        updateHPDisplay(player, newValue);
+        if (gameState[player].currentHp > newValue) {
+            gameState[player].currentHp = newValue;
+            updateHPDisplay(player, newValue);
         }
     }
 }
