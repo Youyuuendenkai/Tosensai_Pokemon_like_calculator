@@ -64,7 +64,7 @@ function initMoveDatabase() {
     });
 }
 
-// 数値の10刻みの増減（直接の手入力にも完全対応）
+// 数値の10刻みの増減（最大HPの増加・減少に完璧に対応）
 function stepValue(id, delta, min, max) {
     const input = document.getElementById(id);
     if (!input) return;
@@ -75,15 +75,28 @@ function stepValue(id, delta, min, max) {
     if (newValue < min) newValue = min;
     if (newValue > max) newValue = max;
 
+    // 前の最大HPを記録しておく（満タン判定用）
+    const prevMaxHp = currentValue;
+
     input.value = newValue;
 
-    // HP自動調整
+    // 最大HP（max-hp）が変更された場合
     if (id.endsWith('max-hp')) {
         const player = id.startsWith('p1') ? 'p1' : 'p2';
-        if (gameState[player].currentHp > newValue) {
+        
+        // 【親切設計】
+        // もし変更前に「HPが満タン（現在HP ＝ 変更前の最大HP）」だったなら、
+        // 最大HPを増やしたときも、自動的に新しい最大HP（満タン）に合わせる
+        if (gameState[player].currentHp === prevMaxHp) {
             gameState[player].currentHp = newValue;
-            updateHPDisplay(player, newValue);
+        } 
+        // そうではなく、最大HPを下げたことで現在HPがはみ出してしまったら、新しい最大HPに丸める
+        else if (gameState[player].currentHp > newValue) {
+            gameState[player].currentHp = newValue;
         }
+        
+        // 最大HPが増えても減っても、★必ず★表示を更新する
+        updateHPDisplay(player, newValue);
     }
 }
 
