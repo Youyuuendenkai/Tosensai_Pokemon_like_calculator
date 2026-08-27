@@ -1,17 +1,12 @@
 // 技のデータベース（CSVの読み込みに失敗したときの保険用のデフォルトリスト）
 let MOVE_DATABASE = [
-    { id: 1, name: "たいあたり", power: 60, recoil: 0, desc: "普通の体当たり。追加効果なし", isBase: 1 },
-    { id: 2, name: "ひのこ", power: 40, recoil: 0, desc: "相手を火の粉で攻撃する", isBase: 1 },
-    { id: 3, name: "かえんほうしゃ", power: 90, recoil: 0, desc: "激しい炎を吹き出す", isBase: 0 },
-    { id: 4, name: "でんきショック", power: 40, recoil: 0, desc: "電気を浴びせて攻撃する", isBase: 1 },
-    { id: 5, name: "10まんボルト", power: 90, recoil: 0, desc: "強い電撃を浴びせる", isBase: 0 },
-    { id: 6, name: "かみなり", power: 120, recoil: 25, desc: "天から雷を落とす。少し反動を受ける", isBase: 0 },
-    { id: 7, name: "みずでっぽう", power: 40, recoil: 0, desc: "勢いよく水を吹き出す", isBase: 1 },
-    { id: 8, name: "ハイドロポンプ", power: 90, recoil: 0, desc: "大量の水を激しく噴射する", isBase: 0 },
-    { id: 9, name: "ギガインパクト", power: 120, recoil: 0, desc: "全身全霊の体当たりをぶちかます", isBase: 0 },
-    { id: 10, name: "ウルトラバースト", power: 120, recoil: 50, desc: "凄まじい反動を受ける超大技", isBase: 0 },
-    { id: 11, name: "すてみタックル", power: 120, recoil: 33, desc: "命を削って突進する。大きな反動を受ける", isBase: 0 },
-    { id: 12, name: "でんこうせっか", power: 40, recoil: 0, desc: "素早く相手に体当たりする", isBase: 1 }
+    { id: 1, name: "わざ1", power: 40, recoil: 0, desc: "", isBase: 1 },
+    { id: 2, name: "わざ2", power: 40, recoil: 0, desc: "", isBase: 0 },
+    { id: 3, name: "わざ3", power: 60, recoil: 0, desc: "", isBase: 1 },
+    { id: 4, name: "わざ4", power: 80, recoil: 0, desc: "", isBase: 1 },
+    { id: 5, name: "わざ5", power: 90, recoil: 0, desc: "", isBase: 1 },
+    { id: 6, name: "わざ6", power: 100, recoil: 25, desc: "少し反動を受ける。", isBase: 0 },
+    { id: 7, name: "わざ7", power: 120, recoil: 0, desc: "当たりづらい。", isBase: 0 },
 ];
 
 // ゲームの現在の状態
@@ -31,13 +26,12 @@ if (document.readyState === 'loading') {
 }
 
 async function initializeGame() {
-    // 最初にCSVファイルから技リストをロードする
     await loadMovesFromCSV();
     initMoveDatabase();
     resetBattle();
 }
 
-// ＝★新規追加：外部CSVファイルを非同期で読み込んでパースする
+// 外部CSVファイルを非同期で読み込んでパースする
 async function loadMovesFromCSV() {
     try {
         const response = await fetch('moves.csv');
@@ -46,21 +40,23 @@ async function loadMovesFromCSV() {
         }
         const csvText = await response.text();
         MOVE_DATABASE = parseCSV(csvText);
-        console.log('moves.csvを正常に読み込み、反映しました。');
+        console.log('moves.csvを正常に読み込み、反映しました。', MOVE_DATABASE);
     } catch (error) {
-        // ローカルでHTMLファイルを直接ダブルクリックして起動した場合、
-        // ブラウザの仕様（CORS制限）によりCSV読み込みがブロックされるため、
-        // その場合は、上記のデフォルトリストをそのまま使用して、安全に起動させます。
+        // ローカル（file://）環境など、fetch制限に引っかかった場合は自動的に上記の保険用リストで動かします
         console.warn('moves.csvの読み込みに失敗しました（ローカルテスト中、またはファイル未配置）。フォールバックリストを使用します。', error);
     }
 }
 
-// ＝★新規追加：簡易的なCSVパース処理
+// CSVパース（Excel保存時のBOM文字化け対策を追加）
 function parseCSV(csvText) {
+    // ＝★Excelなどで保存された際に付与される「BOM」というゴミデータを安全に削除する
+    if (csvText.startsWith('\uFEFF')) {
+        csvText = csvText.slice(1);
+    }
+
     const lines = csvText.split(/\r?\n/);
     const parsedData = [];
     
-    // 2行目（インデックス1）からデータとして処理（1行目のヘッダーはスキップ）
     for (let i = 1; i < lines.length; i++) {
         const line = lines[i].trim();
         if (line === '') continue;
@@ -87,7 +83,6 @@ function initMoveDatabase() {
     
     // 「基本技フラグ」が 1 の技だけを抽出
     const baseMoves = MOVE_DATABASE.filter(move => move.isBase === 1);
-    // もし基本技に設定された技が足りない場合は、全体から割り当てる
     const startMoves = baseMoves.length >= 3 ? baseMoves : MOVE_DATABASE;
 
     players.forEach(player => {
@@ -99,10 +94,15 @@ function initMoveDatabase() {
             
             MOVE_DATABASE.forEach(move => {
                 const option = document.createElement('option');
-                option.value = move.name;
-                // ドロップダウンを展開したときにも説明や反動が見えるように、オプションテキストをリッチ化
+                
+                // ＝★ value（裏の値）は「星なし」の素の技名にしておくことで、プログラムが壊れないようにします
+                option.value = move.name; 
+                
+                // ＝★【要望】基本技フラグが1なら、表示（テキスト）の先頭に「⭐ 」を付与する
+                const isBaseMark = move.isBase === 1 ? '⭐ ' : '';
                 const recoilText = move.recoil > 0 ? ` / 反動:${move.recoil}%` : '';
-                option.textContent = `${move.name} (威力:${move.power}${recoilText}) — ${move.desc}`;
+                
+                option.textContent = `${isBaseMark}${move.name} (威力:${move.power}${recoilText})`;
                 selectEl.appendChild(option);
             });
             
@@ -114,7 +114,7 @@ function initMoveDatabase() {
                 selectEl.value = initialMove.name;
             }
             
-            // 威力・反動・備考を初期同期
+            // 威力・反動・備考を同期
             onSelectMove(player, slot);
         });
     });
@@ -148,13 +148,12 @@ function stepValue(id, delta, min, max) {
     }
 }
 
-// ＝★大幅更新：技選択時に、威力・反動ダメージ・備考欄テキストを全て同期させる
+// 技選択時に、威力・反動ダメージ・備考欄テキストを全て同期させる
 function onSelectMove(player, moveIndex) {
     const selectEl = document.getElementById(`${player}-move-name-${moveIndex}`);
     const powerInput = document.getElementById(`${player}-move-power-${moveIndex}`);
     const powerDisplay = document.getElementById(`${player}-move-power-display-${moveIndex}`);
     
-    // 反動と説明（備考）用の要素
     const recoilInput = document.getElementById(`${player}-move-recoil-${moveIndex}`);
     const recoilDisplay = document.getElementById(`${player}-move-recoil-display-${moveIndex}`);
     const recoilArea = document.getElementById(`${player}-move-recoil-display-area-${moveIndex}`);
@@ -166,21 +165,24 @@ function onSelectMove(player, moveIndex) {
     const foundMove = MOVE_DATABASE.find(move => move.name === selectedName);
 
     if (foundMove) {
-        // 威力を同期
         if (powerInput) powerInput.value = foundMove.power;
         if (powerDisplay) powerDisplay.textContent = foundMove.power;
         
-        // 反動を同期
         if (recoilInput) recoilInput.value = foundMove.recoil;
         if (recoilDisplay) recoilDisplay.textContent = foundMove.recoil;
         if (recoilArea) {
-            // 反動ダメージが0%より大きいときだけ、横に「/ 反動: ◯%」を表示する
             recoilArea.style.display = foundMove.recoil > 0 ? 'inline' : 'none';
         }
         
-        // 備考（技の説明）を同期
+        // ＝★【要望】備考（技の説明）が空、または「なし」などの場合は表示部自体を非表示にする
         if (descDisplay) {
-            descDisplay.textContent = foundMove.desc || '（説明はありません）';
+            const description = foundMove.desc ? foundMove.desc.trim() : '';
+            if (description !== '' && description !== 'なし') {
+                descDisplay.textContent = description;
+                descDisplay.style.display = 'block'; // 表示
+            } else {
+                descDisplay.style.display = 'none';  // 非表示（青い縦棒も消えます）
+            }
         }
     }
 }
@@ -281,15 +283,13 @@ function calculateDamage(power, attack, defense) {
 
     const safeDefense = defense > 0 ? defense : 1;
 
-    // 【新しい計算式】
-    // 威力 * (攻撃 / 防御) * 補正値(0.85)
     let damage = power * (attack / safeDefense) * 0.85;
     damage = Math.floor(damage);
 
     return Math.max(1, damage);
 }
 
-// ＝★大幅更新：反動ダメージのロジックを追加した技使用処理
+// 技使用
 function useMove(attacker, moveIndex) {
     const defender = attacker === 'p1' ? 'p2' : 'p1';
 
@@ -308,10 +308,8 @@ function useMove(attacker, moveIndex) {
         return;
     }
 
-    // 1. 計算前の現在のHPを保存
     const startHp = gameState[defender].currentHp;
 
-    // 各種ステータスの取得
     const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
     const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
     
@@ -319,36 +317,24 @@ function useMove(attacker, moveIndex) {
     const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
     const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
 
-    // ダメージ計算
     const damage = calculateDamage(movePower, attack, defense);
-
-    // 2. 相手の減少後のHP
     const endHp = Math.max(0, startHp - damage);
 
-    // 3. アニメーション前の状態（お互いのHPとログ）をUndo履歴に保存
     saveToHistory();
 
-    // 4. 【演出開始】
     triggerDamageAnimation(defender, startHp, endHp, defenderMaxHp, () => {
-        // ステート（現在HP）の確定反映と、メイン画面バーの更新
         gameState[defender].currentHp = endHp;
         updateHPDisplay(defender, defenderMaxHp);
 
-        // ダメージのログ書き出し
         addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
 
-        // ＝★【反動ダメージ処理の追加】
-        // 攻撃側の「反動ダメージ」を同期したhiddenから取得（例：33 なら 33%）
         const recoilPercent = parseInt(document.getElementById(`${attacker}-move-recoil-${moveIndex}`).value) || 0;
         
-        // 反動があり、かつ攻撃者がまだ倒れていない場合
         if (recoilPercent > 0 && gameState[attacker].currentHp > 0) {
-            // 与えたダメージに対する割合で、反動ダメージを計算（最低1ダメージ）
             const recoilDamage = Math.max(1, Math.floor(damage * (recoilPercent / 100)));
             const attackerStartHp = gameState[attacker].currentHp;
             const attackerEndHp = Math.max(0, attackerStartHp - recoilDamage);
 
-            // 攻撃者のHPを減少させて、画面表示を更新
             gameState[attacker].currentHp = attackerEndHp;
             updateHPDisplay(attacker, attackerMaxHp);
 
@@ -359,7 +345,6 @@ function useMove(attacker, moveIndex) {
             }
         }
 
-        // ひんし判定
         if (gameState[defender].currentHp <= 0) {
             addLog(`${defenderName}はたおれた！`);
         }
