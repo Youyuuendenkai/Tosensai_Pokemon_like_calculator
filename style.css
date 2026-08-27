@@ -83,6 +83,7 @@ h1 {
     border-bottom: 2px solid #eee;
     padding-bottom: 12px;
     font-size: 22px;
+    margin-bottom: 15px; /* ＝★HPバーを一番上に配置するため、余白を調整しました */
 }
 
 /* ステータス配置 */
@@ -131,7 +132,6 @@ h1 {
     font-weight: bold;
     text-align: center;
     color: #333;
-    /* 直接入力可能にしたためpointer-eventsを解除しました */
 }
 
 /* ブラウザ標準のスピナー（矢印）を完全に隠す */
@@ -146,7 +146,7 @@ input[type=number] {
 
 /* HPバー */
 .hp-section {
-    margin: 20px 0;
+    margin: 0 0 24px 0; /* ＝★カード最上部のため、余白（マージン）の上下を調整しました */
 }
 .hp-bar-container {
     background-color: #e0e0e0;
@@ -249,15 +249,15 @@ input[type=number] {
     padding-bottom: 4px;
 }
 
-/* ＝★iPad用の連打対策：ダブルタップズームとテキストの青ハイライトを防止 */
+/* iPad用の連打対策：ダブルタップズームとテキストの青ハイライトを防止 */
 button, select, .btn, .btn-step, .btn-use-move {
-    touch-action: manipulation;  /* ダブルタップでのズーム機能を無効化します */
-    -webkit-user-select: none;   /* 連打したときに文字が青く選択されてしまうのを防ぎます */
+    touch-action: manipulation;
+    -webkit-user-select: none;
     user-select: none;
 }
 
 /* ==========================================
-   ＝★新規追加：ダメージ演出ポップアップ（モーダル）
+   ダメージ演出ポップアップ（モーダル）
    ========================================== */
 .modal-overlay {
     display: none; /* 初期状態は非表示 */
@@ -368,28 +368,5 @@ button, select, .btn, .btn-step, .btn-use-move {
     border-left: 3px solid #007bff; /* 青い縦棒で説明っぽさを演出 */
     line-height: 1.4;
     word-break: break-all;
-}
-
-.move-item-container {
-    margin-bottom: 16px;
-    border-bottom: 1px solid #eef0f3;
-    padding-bottom: 14px;
-    text-align: left;
-}
-
-.move-item-container:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
-}
-
-.move-desc-text {
-    font-size: 13px;
-    color: #666;
-    margin-top: 6px;
-    padding-left: 10px;
-    border-left: 3px solid #007bff; /* 青い縦棒で説明っぽさを演出 */
-    line-height: 1.4;
-    word-break: break-all;
-    display: none; /* ＝★初期状態、または備考がない場合は非表示に */
+    display: none; /* 初期状態、または備考がない場合は非表示に */
 }
