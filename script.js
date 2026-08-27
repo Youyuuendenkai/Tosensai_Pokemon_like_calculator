@@ -100,9 +100,9 @@ function initMoveDatabase() {
                 
                 // ＝★【要望】基本技フラグが1なら、表示（テキスト）の先頭に「⭐ 」を付与する
                 const isBaseMark = move.isBase === 1 ? '⭐ ' : '';
-                const recoilText = move.recoil > 0 ? ` / 反動:${move.recoil}%` : '';
                 
-                option.textContent = `${isBaseMark}${move.name} (威力:${move.power}${recoilText})`;
+                // ＝★【要望】反動と説明は選択後の別画面に出るためドロップダウンからは削除。威力はソートに使うため残す。
+                option.textContent = `${isBaseMark}${move.name} (威力:${move.power})`;
                 selectEl.appendChild(option);
             });
             
@@ -174,7 +174,7 @@ function onSelectMove(player, moveIndex) {
             recoilArea.style.display = foundMove.recoil > 0 ? 'inline' : 'none';
         }
         
-        // ＝★【要望】備考（技の説明）が空、または「なし」などの場合は表示部自体を非表示にする
+        // ＝★【要望】備考（技の説明）が空、または「なし」などの場合は表示部自体を非表示にし、「説明がありません」などのダミーテキストも出さない
         if (descDisplay) {
             const description = foundMove.desc ? foundMove.desc.trim() : '';
             if (description !== '' && description !== 'なし') {
@@ -289,7 +289,7 @@ function calculateDamage(power, attack, defense) {
     return Math.max(1, damage);
 }
 
-// 技使用
+// ＝★大幅更新：反動アニメーションを完全連動させた技使用処理
 function useMove(attacker, moveIndex) {
     const defender = attacker === 'p1' ? 'p2' : 'p1';
 
@@ -308,8 +308,11 @@ function useMove(attacker, moveIndex) {
         return;
     }
 
+    // 計算前のHP状態
     const startHp = gameState[defender].currentHp;
+    const attackerStartHp = gameState[attacker].currentHp;
 
+    // ステータスの取得
     const attack = parseInt(document.getElementById(`${attacker}-attack`).value) || 10;
     const defense = parseInt(document.getElementById(`${defender}-defense`).value) || 10;
     
@@ -317,38 +320,58 @@ function useMove(attacker, moveIndex) {
     const moveName = selectEl ? selectEl.value : `わざ${moveIndex + 1}`;
     const movePower = parseInt(document.getElementById(`${attacker}-move-power-${moveIndex}`).value) || 0;
 
+    // 1. ダメージ計算
     const damage = calculateDamage(movePower, attack, defense);
     const endHp = Math.max(0, startHp - damage);
 
+    // 2. ＝★【計算式変更】：反動ダメージを「与ダメージ比例」から「自分の最大HPに対する割合」に変更
+    const recoilPercent = parseInt(document.getElementById(`${attacker}-move-recoil-${moveIndex}`).value) || 0;
+    let recoilDamage = 0;
+    if (recoilPercent > 0) {
+        recoilDamage = Math.max(1, Math.floor(attackerMaxHp * (recoilPercent / 100)));
+    }
+    const attackerEndHp = Math.max(0, attackerStartHp - recoilDamage);
+
+    // 3. アニメーション前のお互いのHPとログ状態を完全にUndo用に記録
     saveToHistory();
 
+    // 4. 【演出第1弾】：相手への攻撃ダメージ
     triggerDamageAnimation(defender, startHp, endHp, defenderMaxHp, () => {
+        // 相手のHPステート確定・反映
         gameState[defender].currentHp = endHp;
         updateHPDisplay(defender, defenderMaxHp);
 
         addLog(`${attackerName}の「${moveName}」！ ${defenderName}に ${damage} のダメージ！`);
 
-        const recoilPercent = parseInt(document.getElementById(`${attacker}-move-recoil-${moveIndex}`).value) || 0;
-        
-        if (recoilPercent > 0 && gameState[attacker].currentHp > 0) {
-            const recoilDamage = Math.max(1, Math.floor(damage * (recoilPercent / 100)));
-            const attackerStartHp = gameState[attacker].currentHp;
-            const attackerEndHp = Math.max(0, attackerStartHp - recoilDamage);
+        // 5. ＝★【演出第2弾】：反動ダメージがあった場合は攻撃側のHPを減らすアニメーションを連動
+        if (recoilDamage > 0 && attackerStartHp > 0) {
+            // モーダルが閉じた後に、少しの間隔（150ms）をあけて自分の反動ポップアップを起動
+            setTimeout(() => {
+                triggerDamageAnimation(attacker, attackerStartHp, attackerEndHp, attackerMaxHp, () => {
+                    // 自分のHP確定・反映
+                    gameState[attacker].currentHp = attackerEndHp;
+                    updateHPDisplay(attacker, attackerMaxHp);
 
-            gameState[attacker].currentHp = attackerEndHp;
-            updateHPDisplay(attacker, attackerMaxHp);
+                    addLog(`${attackerName}は反動で ${recoilDamage} のダメージを受けた！`);
 
-            addLog(`${attackerName}は反動で ${recoilDamage} のダメージを受けた！`);
+                    // 自分のひんし判定
+                    if (attackerEndHp <= 0) {
+                        addLog(`${attackerName}は反動でたおれた！`);
+                    }
 
-            if (attackerEndHp <= 0) {
-                addLog(`${attackerName}は反動でたおれた！`);
+                    // 相手のひんし判定
+                    if (gameState[defender].currentHp <= 0) {
+                        addLog(`${defenderName}はたおれた！`);
+                    }
+                }, "反動をうけている..."); // ★ポップアップのメッセージを変更
+            }, 150);
+        } else {
+            // 反動がなければそのまま相手のひんし判定をして終了
+            if (gameState[defender].currentHp <= 0) {
+                addLog(`${defenderName}はたおれた！`);
             }
         }
-
-        if (gameState[defender].currentHp <= 0) {
-            addLog(`${defenderName}はたおれた！`);
-        }
-    });
+    }, "ダメージをうけている...");
 }
 
 // ログ
@@ -363,15 +386,17 @@ function addLog(message) {
 }
 
 
-// ダメージ演出用モーダル
-function triggerDamageAnimation(defender, startHp, endHp, maxHp, callback) {
+// ダメージ演出用モーダル（ヒントメッセージを第6引数でカスタマイズできるように拡張）
+function triggerDamageAnimation(defender, startHp, endHp, maxHp, callback, hintMessage = "ダメージをうけている...") {
     const overlay = document.getElementById('battle-modal');
     const bar = document.getElementById('modal-hp-bar');
     const text = document.getElementById('modal-hp-text');
     const title = document.getElementById('modal-player-name');
+    const hint = document.getElementById('modal-hint'); // ← ヒントメッセージ要素の取得
     
     const defenderName = defender === 'p1' ? 'プレイヤー1' : 'プレイヤー2';
     title.textContent = defenderName;
+    if (hint) hint.textContent = hintMessage; // ← 「反動をうけている...」などに書き換え
     
     const startPercent = (startHp / maxHp) * 100;
     bar.style.transition = 'none';
