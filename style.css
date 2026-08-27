@@ -345,3 +345,27 @@ button, select, .btn, .btn-step, .btn-use-move {
     0% { opacity: 0.4; }
     100% { opacity: 1; }
 }
+
+/* ＝★新規追加：技リストの説明文（備考）エリアのデザイン */
+.move-item-container {
+    margin-bottom: 16px;
+    border-bottom: 1px solid #eef0f3;
+    padding-bottom: 14px;
+    text-align: left;
+}
+
+.move-item-container:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+
+.move-desc-text {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    padding-left: 10px;
+    border-left: 3px solid #007bff; /* 青い縦棒で説明っぽさを演出 */
+    line-height: 1.4;
+    word-break: break-all;
+}
