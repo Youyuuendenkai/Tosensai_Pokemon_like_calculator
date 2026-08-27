@@ -62,26 +62,51 @@
                 <h3>技リスト（選択して使用）</h3>
                 
                 <!-- 技スロット 1 -->
-                <div class="move-item">
-                    <select id="p1-move-name-0" onchange="onSelectMove('p1', 0)"></select>
-                    <!-- 威力は表示だけに。裏側で計算用にhidden inputを持ちます -->
-                    <span class="move-power-label">威力: <span id="p1-move-power-display-0">60</span></span>
-                    <input type="hidden" id="p1-move-power-0" value="60">
-                    <button class="btn-use-move" onclick="useMove('p1', 0)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p1-move-name-0" onchange="onSelectMove('p1', 0)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p1-move-power-display-0">60</span>
+                            <!-- 反動ダメージ用の表示エリアを追加 -->
+                            <span id="p1-move-recoil-display-area-0"> / 反動: <span id="p1-move-recoil-display-0">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p1-move-power-0" value="60">
+                        <!-- 計算用に反動パーセンテージもhiddenで保持 -->
+                        <input type="hidden" id="p1-move-recoil-0" value="0">
+                        <button class="btn-use-move" onclick="useMove('p1', 0)">使用</button>
+                    </div>
+                    <!-- 備考（技の説明）を表示する領域 -->
+                    <div id="p1-move-desc-0" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
+                
                 <!-- 技スロット 2 -->
-                <div class="move-item">
-                    <select id="p1-move-name-1" onchange="onSelectMove('p1', 1)"></select>
-                    <span class="move-power-label">威力: <span id="p1-move-power-display-1">90</span></span>
-                    <input type="hidden" id="p1-move-power-1" value="90">
-                    <button class="btn-use-move" onclick="useMove('p1', 1)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p1-move-name-1" onchange="onSelectMove('p1', 1)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p1-move-power-display-1">90</span>
+                            <span id="p1-move-recoil-display-area-1"> / 反動: <span id="p1-move-recoil-display-1">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p1-move-power-1" value="90">
+                        <input type="hidden" id="p1-move-recoil-1" value="0">
+                        <button class="btn-use-move" onclick="useMove('p1', 1)">使用</button>
+                    </div>
+                    <div id="p1-move-desc-1" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
+                
                 <!-- 技スロット 3 -->
-                <div class="move-item">
-                    <select id="p1-move-name-2" onchange="onSelectMove('p1', 2)"></select>
-                    <span class="move-power-label">威力: <span id="p1-move-power-display-2">120</span></span>
-                    <input type="hidden" id="p1-move-power-2" value="120">
-                    <button class="btn-use-move" onclick="useMove('p1', 2)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p1-move-name-2" onchange="onSelectMove('p1', 2)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p1-move-power-display-2">120</span>
+                            <span id="p1-move-recoil-display-area-2"> / 反動: <span id="p1-move-recoil-display-2">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p1-move-power-2" value="120">
+                        <input type="hidden" id="p1-move-recoil-2" value="0">
+                        <button class="btn-use-move" onclick="useMove('p1', 2)">使用</button>
+                    </div>
+                    <div id="p1-move-desc-2" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
             </div>
         </div>
@@ -131,25 +156,48 @@
                 <h3>技リスト（選択して使用）</h3>
                 
                 <!-- 技スロット 1 -->
-                <div class="move-item">
-                    <select id="p2-move-name-0" onchange="onSelectMove('p2', 0)"></select>
-                    <span class="move-power-label">威力: <span id="p2-move-power-display-0">60</span></span>
-                    <input type="hidden" id="p2-move-power-0" value="60">
-                    <button class="btn-use-move" onclick="useMove('p2', 0)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p2-move-name-0" onchange="onSelectMove('p2', 0)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p2-move-power-display-0">60</span>
+                            <span id="p2-move-recoil-display-area-0"> / 反動: <span id="p2-move-recoil-display-0">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p2-move-power-0" value="60">
+                        <input type="hidden" id="p2-move-recoil-0" value="0">
+                        <button class="btn-use-move" onclick="useMove('p2', 0)">使用</button>
+                    </div>
+                    <div id="p2-move-desc-0" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
+                
                 <!-- 技スロット 2 -->
-                <div class="move-item">
-                    <select id="p2-move-name-1" onchange="onSelectMove('p2', 1)"></select>
-                    <span class="move-power-label">威力: <span id="p2-move-power-display-1">90</span></span>
-                    <input type="hidden" id="p2-move-power-1" value="90">
-                    <button class="btn-use-move" onclick="useMove('p2', 1)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p2-move-name-1" onchange="onSelectMove('p2', 1)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p2-move-power-display-1">90</span>
+                            <span id="p2-move-recoil-display-area-1"> / 反動: <span id="p2-move-recoil-display-1">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p2-move-power-1" value="90">
+                        <input type="hidden" id="p2-recoil-1" value="0">
+                        <button class="btn-use-move" onclick="useMove('p2', 1)">使用</button>
+                    </div>
+                    <div id="p2-move-desc-1" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
+                
                 <!-- 技スロット 3 -->
-                <div class="move-item">
-                    <select id="p2-move-name-2" onchange="onSelectMove('p2', 2)"></select>
-                    <span class="move-power-label">威力: <span id="p2-move-power-display-2">120</span></span>
-                    <input type="hidden" id="p2-move-power-2" value="120">
-                    <button class="btn-use-move" onclick="useMove('p2', 2)">使用</button>
+                <div class="move-item-container">
+                    <div class="move-item">
+                        <select id="p2-move-name-2" onchange="onSelectMove('p2', 2)"></select>
+                        <span class="move-power-label">
+                            威力: <span id="p2-move-power-display-2">120</span>
+                            <span id="p2-move-recoil-display-area-2"> / 反動: <span id="p2-move-recoil-display-2">0</span>%</span>
+                        </span>
+                        <input type="hidden" id="p2-move-power-2" value="120">
+                        <input type="hidden" id="p2-move-recoil-2" value="0">
+                        <button class="btn-use-move" onclick="useMove('p2', 2)">使用</button>
+                    </div>
+                    <div id="p2-move-desc-2" class="move-desc-text">技の説明がここに入ります</div>
                 </div>
             </div>
         </div>
@@ -163,7 +211,7 @@
 
 </div>
     
-    <!-- ＝★新規追加：大迫力のHPダメージ演出用ポップアップ -->
+    <!-- 大迫力のHPダメージ演出用ポップアップ -->
     <div id="battle-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 id="modal-player-name">プレイヤー2</h2>
