@@ -9,49 +9,17 @@
 <body>
 
 <div class="container">
-    <h1>Poke-like Battle Simulator</h1>
 
     <div class="battlefield">
         <!-- プレイヤー 1 -->
         <div class="player-card" id="p1-card">
             <h2>プレイヤー 1</h2>
             
-            <!-- ＝★HPバーを一番上に移動しました -->
             <div class="hp-section">
                 <div class="hp-bar-container">
                     <div id="p1-hp-bar" class="hp-bar"></div>
                 </div>
                 <div id="p1-hp-text" class="hp-text">150 / 150</div>
-            </div>
-
-            <div class="status-group">
-                <!-- HP設定ステッパー -->
-                <div class="status-input-row">
-                    <label>最大HP (～180):</label>
-                    <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', -10, 10, 180)">－</button>
-                        <input type="number" id="p1-max-hp" value="150" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', 10, 10, 180)">＋</button>
-                    </div>
-                </div>
-                <!-- 攻撃設定ステッパー -->
-                <div class="status-input-row">
-                    <label>こうげき (～180):</label>
-                    <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', -10, 10, 180)">－</button>
-                        <input type="number" id="p1-attack" value="100" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', 10, 10, 180)">＋</button>
-                    </div>
-                </div>
-                <!-- 防御設定ステッパー -->
-                <div class="status-input-row">
-                    <label>ぼうぎょ (～180):</label>
-                    <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', -10, 10, 180)">－</button>
-                        <input type="number" id="p1-defense" value="100" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', 10, 10, 180)">＋</button>
-                    </div>
-                </div>
             </div>
 
             <div class="move-list">
@@ -102,48 +70,47 @@
                     <div id="p1-move-desc-2" class="move-desc-text"></div>
                 </div>
             </div>
-        </div>
-
-        <!-- プレイヤー 2 -->
-        <div class="player-card" id="p2-card">
-            <h2>プレイヤー 2</h2>
             
-            <!-- ＝★HPバーを一番上に移動しました -->
-            <div class="hp-section">
-                <div class="hp-bar-container">
-                    <div id="p2-hp-bar" class="hp-bar"></div>
-                </div>
-                <div id="p2-hp-text" class="hp-text">150 / 150</div>
-            </div>
-
             <div class="status-group">
                 <!-- HP設定ステッパー -->
                 <div class="status-input-row">
                     <label>最大HP (～180):</label>
                     <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', -10, 10, 180)">－</button>
-                        <input type="number" id="p2-max-hp" value="150" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', 10, 10, 180)">＋</button>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-max-hp" value="150" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-max-hp', 10, 10, 180)">＋</button>
                     </div>
                 </div>
                 <!-- 攻撃設定ステッパー -->
                 <div class="status-input-row">
                     <label>こうげき (～180):</label>
                     <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', -10, 10, 180)">－</button>
-                        <input type="number" id="p2-attack" value="100" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', 10, 10, 180)">＋</button>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-attack" value="100" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-attack', 10, 10, 180)">＋</button>
                     </div>
                 </div>
                 <!-- 防御設定ステッパー -->
                 <div class="status-input-row">
                     <label>ぼうぎょ (～180):</label>
                     <div class="stepper">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', -10, 10, 180)">－</button>
-                        <input type="number" id="p2-defense" value="100" min="10" max="180">
-                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', 10, 10, 180)">＋</button>
+                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', -10, 10, 180)">－</button>
+                        <input type="number" id="p1-defense" value="100" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p1-defense', 10, 10, 180)">＋</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- プレイヤー 2 -->
+        <div class="player-card" id="p2-card">
+            <h2>プレイヤー 2</h2>
+            
+            <div class="hp-section">
+                <div class="hp-bar-container">
+                    <div id="p2-hp-bar" class="hp-bar"></div>
+                </div>
+                <div id="p2-hp-text" class="hp-text">150 / 150</div>
             </div>
 
             <div class="move-list">
@@ -190,6 +157,36 @@
                         <button class="btn-use-move" onclick="useMove('p2', 2)">使用</button>
                     </div>
                     <div id="p2-move-desc-2" class="move-desc-text"></div>
+                </div>
+            </div>
+            
+            <div class="status-group">
+                <!-- HP設定ステッパー -->
+                <div class="status-input-row">
+                    <label>最大HP (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-max-hp" value="150" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-max-hp', 10, 10, 180)">＋</button>
+                    </div>
+                </div>
+                <!-- 攻撃設定ステッパー -->
+                <div class="status-input-row">
+                    <label>こうげき (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-attack" value="100" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-attack', 10, 10, 180)">＋</button>
+                    </div>
+                </div>
+                <!-- 防御設定ステッパー -->
+                <div class="status-input-row">
+                    <label>ぼうぎょ (～180):</label>
+                    <div class="stepper">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', -10, 10, 180)">－</button>
+                        <input type="number" id="p2-defense" value="100" min="10" max="180">
+                        <button type="button" class="btn-step" onclick="stepValue('p2-defense', 10, 10, 180)">＋</button>
+                    </div>
                 </div>
             </div>
         </div>
